@@ -13,12 +13,9 @@ Package.describe({
 Package.onUse(function(api) {
   api.versionsFrom('1.5');
   api.use('ecmascript');
+  api.use('mongo');
+  api.use('aldeed:collection2-core');
+  api.use('dburles:mongo-collection-instances');
+  api.use('dburles:collection-helpers');
   api.mainModule('meteor-collection-factory.js');
-});
-
-Package.onTest(function(api) {
-  api.use('ecmascript');
-  api.use('tinytest');
-  api.use('jkuester:meteor-collection-factory');
-  api.mainModule('meteor-collection-factory-tests.js');
 });
