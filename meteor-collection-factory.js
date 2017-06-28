@@ -33,26 +33,53 @@ class FactoryCollection extends Mongo.Collection {
 
 export const CollectionFactory = {
 
+
+	hasCollection(name) {
+		return !!(Mongo.Collection.get(name));
+	},
+
+	getCollection(name) {
+		return Mongo.Collection.get(name);
+	},
+
+	dropCollection(name) {
+		const collection = this.getCollection(name);
+		if (!collection) throw new Meteor.Error("cannot drop - collection by name [" + name + "] not found.");
+		try {
+			collection._dropCollection();
+
+		} catch (e) {
+			console.warn("attempt to drop a non initialized collection: ", e.reason || e.message);
+			return false;
+		}
+		return Mongo.Collection.remove(name);
+	},
+
 	createCollection(params) {
 
 		const collectionName = params.name;
+		const options = params.options;
 		const allowObj = params.allow;
 		const denyObj = params.deny;
 		const schema = params.schema;
+		const explicit = params.explicit;
 		const publicFields = params.publicFields;
 		const helpersObj = params.helpers;
 
 		// HOOKS
 		const hooksObj = {};
 		if (params.insert) hooksObj.insert = params.insert;
-		if (params.update) hooksObj.insert = params.update;
-		if (params.remove) hooksObj.insert = params.remove;
+		if (params.update) hooksObj.update = params.update;
+		if (params.remove) hooksObj.remove = params.remove;
 
-		let collection = Mongo.Collection.get(collectionName);
-		if (collection)
-			return collection;
+		let collection = this.getCollection();
+		if (collection) return collection;
 
-		collection = new FactoryCollection(collectionName, hooksObj);
+		collection = new FactoryCollection(collectionName, options, hooksObj);
+		console.log(collection.helpers,Mongo.Collection.prototype.helpers);
+		if (explicit) {
+			collection.insert({test: "test"}, function (err, res) {});
+		}
 
 		if (allowObj) collection.allow(allowObj);
 		if (denyObj) collection.deny(denyObj);
