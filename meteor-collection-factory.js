@@ -90,7 +90,10 @@ export const CollectionFactory = {
 
 
 
-		if (schema) collection.attachSchema(schema);
+		if (schema) {
+			collection.schema = schema;
+			collection.attachSchema(schema);
+		}
 		if (publicFields) collection.publicFields = publicFields;
 
 		if (helpersObj) collection.helpers(helpersObj)
