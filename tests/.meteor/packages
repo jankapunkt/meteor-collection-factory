@@ -20,8 +20,24 @@ shell-server@0.2.3            # Server-side component of the `meteor shell` comm
 #autopublish@1.0.7             # Publish all data to the clients (for prototyping)
 #insecure@1.0.7                # Allow all DB writes from clients (for prototyping)
 
+
+
+# -------------------------------------
+# PACKAGE
+# -------------------------------------
+jkuester:meteor-collection-factory
+
+# -------------------------------------
+# DEPS
+# -------------------------------------
+aldeed:collection2-core
+dburles:collection-helpers@1.1.0
+dburles:mongo-collection-instances
+
+# -------------------------------------
+# TESTSTING
+# -------------------------------------
 practicalmeteor:mocha
 practicalmeteor:chai
-
-jkuester:meteor-collection-factory
 jkuester:meteor-mocha-helpers
+

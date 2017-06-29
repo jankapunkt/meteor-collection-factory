@@ -14,8 +14,9 @@ Package.onUse(function(api) {
   api.versionsFrom('1.5');
   api.use('ecmascript');
   api.use('mongo');
-  api.use('aldeed:collection2-core', ['client', 'server']);
-  api.use('dburles:collection-helpers', ['client', 'server']);
-  api.use('dburles:mongo-collection-instances', ['client', 'server']);
+  api.use('dburles:collection-helpers@1.1.0');
+  api.use('aldeed:collection2-core');
+  api.use('dburles:mongo-collection-instances');
+
   api.mainModule('meteor-collection-factory.js');
 });

@@ -13,19 +13,19 @@ class FactoryCollection extends Mongo.Collection {
 	}
 
 	insert(doc, callback, cb) {
-		if (this.insertHook)
+		if (this.insertHook && Meteor.isServer)
 			this.insertHook.call(this, doc, callback, cb);
 		return super.insert(doc, cb ? cb : callback); // AUTOFORM INSERT CALLBACK FIX
 	}
 
 	update(query, modifier, options, callback) {
-		if (this.updateHook)
+		if (this.updateHook && Meteor.isServer)
 			this.updateHook.call(this, query, modifier, options, callback);
 		return super.update(query, modifier, options, callback);
 	}
 
 	remove(selector, callback) {
-		if (this.removeHook)
+		if (this.removeHook && Meteor.isServer)
 			this.removeHook.call(this, selector, callback);
 		return super.remove(selector, callback);
 	}
@@ -59,8 +59,6 @@ export const CollectionFactory = {
 
 		const collectionName = params.name;
 		const options = params.options;
-		const allowObj = params.allow;
-		const denyObj = params.deny;
 		const schema = params.schema;
 		const explicit = params.explicit;
 		const publicFields = params.publicFields;
@@ -76,13 +74,21 @@ export const CollectionFactory = {
 		if (collection) return collection;
 
 		collection = new FactoryCollection(collectionName, options, hooksObj);
-		console.log(collection.helpers,Mongo.Collection.prototype.helpers);
 		if (explicit) {
-			collection.insert({test: "test"}, function (err, res) {});
+			const tempId = collection.insert({test: "test"});
+			collection.remove(tempId);
 		}
 
-		if (allowObj) collection.allow(allowObj);
-		if (denyObj) collection.deny(denyObj);
+		// denies all client actions by default, because of security
+		// see: https://guide.meteor.com/security.html#allow-deny
+		collection.deny({
+			insert() { return true; },
+			update() { return true; },
+			remove() { return true; },
+		});
+
+
+
 
 		if (schema) collection.attachSchema(schema);
 		if (publicFields) collection.publicFields = publicFields;
