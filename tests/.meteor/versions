@@ -37,8 +37,9 @@ html-tools@1.0.11
 htmljs@1.0.11
 http@1.2.12
 id-map@1.0.9
-jkuester:meteor-collection-factory@0.0.1
+jkuester:meteor-collection-factory@0.1.0
 jkuester:meteor-mocha-helpers@0.0.1
+jkuester:simpl-schema-factory@0.0.1
 johanbrook:publication-collector@1.0.9
 jquery@1.11.10
 lai:collection-extensions@0.2.1_1
