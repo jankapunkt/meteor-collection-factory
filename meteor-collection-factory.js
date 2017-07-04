@@ -75,9 +75,8 @@ export const CollectionFactory = {
 		if (params.remove) hooksObj.remove = params.remove;
 
 		let collection = this.getCollection();
-		if (collection) return collection;
-
-		collection = new FactoryCollection(collectionName, options, hooksObj);
+		if (!collection)
+			collection = new FactoryCollection(collectionName, options, hooksObj);
 		if (explicit) {
 			const tempId = collection.insert({test: "test"});
 			collection.remove(tempId);
