@@ -14,24 +14,54 @@ class FactoryCollection extends Mongo.Collection {
 		this.insertHook = optionalArgs.insert;
 		this.updateHook = optionalArgs.update;
 		this.removeHook = optionalArgs.remove;
+		this.insertAfterHook = optionalArgs.insertAfter;
+		this.updateAfterHook = optionalArgs.updateAfter;
+		this.removeAfterHook = optionalArgs.removeAfter;
 	}
 
 	insert(doc, callback, cb) {
-		if (this.insertHook && Meteor.isServer)
-			this.insertHook.call(this, doc, callback, cb);
-		return super.insert(doc, cb ? cb : callback); // AUTOFORM INSERT CALLBACK FIX
+		try{
+			if (this.insertHook && Meteor.isServer)
+				this.insertHook.call(this, doc, callback, cb);
+			const insertResult = super.insert(doc, cb ? cb : callback); // AUTOFORM INSERT CALLBACK FIX
+			if (this.insertAfterHook && Meteor.isServer)
+				this.insertAfterHook.call(this, doc, callback, cb, insertResult);
+			return insertResult;
+		}catch(e){
+			if (this.insertAfterHook && Meteor.isServer)
+				this.insertAfterHook.call(this, doc, callback, cb, insertResult);
+			throw e;
+		}
 	}
 
 	update(query, modifier, options, callback) {
-		if (this.updateHook && Meteor.isServer)
-			this.updateHook.call(this, query, modifier, options, callback);
-		return super.update(query, modifier, options, callback);
+		try {
+			if (this.updateHook && Meteor.isServer)
+				this.updateHook.call(this, query, modifier, options, callback);
+			const updateResult =  super.update(query, modifier, options, callback);
+			if (this.updateAfterHook && Meteor.isServer)
+				this.updateAfterHook.call(this, query, modifier, options, callback, updateResult);
+			return updateResult
+		}catch(e){
+			if (this.updateAfterHook && Meteor.isServer)
+				this.updateAfterHook.call(this, query, modifier, options, callback, e);
+			throw e;
+		}
 	}
 
 	remove(selector, callback) {
-		if (this.removeHook && Meteor.isServer)
-			this.removeHook.call(this, selector, callback);
-		return super.remove(selector, callback);
+		try {
+			if (this.removeHook && Meteor.isServer)
+				this.removeHook.call(this, selector, callback);
+			const removeResult = super.remove(selector, callback);
+			if (this.removeAfterHook && Meteor.isServer)
+				this.removeAfterHook.call(this, selector, callback, removeResult);
+			return removeResult;
+		}catch(e){
+			if (this.removeAfterHook && Meteor.isServer)
+				this.removeAfterHook.call(this, selector, callback, removeResult);
+			throw e;
+		}
 	}
 }
 
@@ -73,6 +103,11 @@ export const CollectionFactory = {
 		if (params.insert) hooksObj.insert = params.insert;
 		if (params.update) hooksObj.update = params.update;
 		if (params.remove) hooksObj.remove = params.remove;
+
+		// AFTER HOOKS
+		if (params.insertAfter) hooksObj.insertAfter = params.insertAfter;
+		if (params.updateAfter) hooksObj.updateAfter = params.updateAfter;
+		if (params.removeAfter) hooksObj.removeAfter = params.removeAfter;
 
 		let collection = this.getCollection();
 		if (!collection)
