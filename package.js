@@ -14,10 +14,10 @@ Package.onUse(function (api) {
 	api.versionsFrom('1.5');
 	api.use('ecmascript');
 	api.use('mongo');
-	api.use('jkuester:simpl-schema-factory');
+	api.use('jkuester:simpl-schema-factory@0.1.0');
 	api.use('dburles:collection-helpers@1.1.0');
-	api.use('aldeed:collection2-core');
-	api.use('dburles:mongo-collection-instances');
+	api.use('aldeed:collection2-core@2.0.1');
+	api.use('dburles:mongo-collection-instances@0.3.5');
 	api.mainModule('meteor-collection-factory.js');
 });
 
