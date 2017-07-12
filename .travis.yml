@@ -24,6 +24,7 @@ install:
   - cd ../
   - git clone https://github.com/jankapunkt/simpl-schema-factory.git
   - git clone https://github.com/jankapunkt/meteor-mocha-helpers.git
+  - git clone https://github.com/jankapunkt/mongo-collection-instances.git
   - cd $CURRENT_PACKAGE/tests && npm install
 
 script:
