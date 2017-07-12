@@ -21,8 +21,9 @@ before_install:
 
 install:
   - export CURRENT_PACKAGE=$(pwd)
-  - cd ../ && git clone https://github.com/jankapunkt/simpl-schema-factory.git
-  - cd CURRENT_PACKAGE/tests && npm install
+  - cd ../
+  - git clone https://github.com/jankapunkt/simpl-schema-factory.git
+  - cd $CURRENT_PACKAGE/tests && npm install
 
 script:
   - npm run testcli
