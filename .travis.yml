@@ -25,7 +25,10 @@ install:
   - git clone https://github.com/jankapunkt/simpl-schema-factory.git
   - git clone https://github.com/jankapunkt/meteor-mocha-helpers.git
   - git clone https://github.com/jankapunkt/mongo-collection-instances.git
-  - cd $CURRENT_PACKAGE/tests && npm install
+  - cd $CURRENT_PACKAGE/tests
+  - meteor npm install --save-dev phantomjs-prebuilt
+  - meteor npm install --save simpl-schema
+  - meteor npm install
 
 script:
-  - npm run testcli
+  - meteor npm run testcli
