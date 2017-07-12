@@ -5,7 +5,10 @@ import {SimpleSchemaFactory} from 'meteor/jkuester:simpl-schema-factory';
 //checkNpmVersions({ 'simpl-schema': '0.x.x' }, 'jkuester:meteor-collection-factory');
 
 const SimpleSchema = require('simpl-schema').default;
-// INTERNAL
+
+
+
+
 
 class FactoryCollection extends Mongo.Collection {
 
@@ -29,7 +32,7 @@ class FactoryCollection extends Mongo.Collection {
 			return insertResult;
 		}catch(e){
 			if (this.insertAfterHook && Meteor.isServer)
-				this.insertAfterHook.call(this, doc, callback, cb, insertResult);
+				this.insertAfterHook.call(this, doc, callback, cb, e);
 			throw e;
 		}
 	}
@@ -59,7 +62,7 @@ class FactoryCollection extends Mongo.Collection {
 			return removeResult;
 		}catch(e){
 			if (this.removeAfterHook && Meteor.isServer)
-				this.removeAfterHook.call(this, selector, callback, removeResult);
+				this.removeAfterHook.call(this, selector, callback, e);
 			throw e;
 		}
 	}
@@ -81,12 +84,15 @@ export const CollectionFactory = {
 		if (!collection) throw new Meteor.Error("cannot drop - collection by name [" + name + "] not found.");
 		try {
 			collection._dropCollection();
-
 		} catch (e) {
 			console.warn("attempt to drop a non initialized collection: ", e.reason || e.message);
 			return false;
 		}
-		return Mongo.Collection.remove(name);
+		if (Mongo.Collection.remove) {
+			return Mongo.Collection.remove(name);
+		}else{
+			return true;
+		}
 	},
 
 	createCollection(params) {
