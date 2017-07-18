@@ -18,6 +18,10 @@ jkuester:simpl-schema-factory
 simpl-schema (npm package)
 
 
+## Changelog
+
+0.1.2 - Fixed compatibility issues with hwillson:stub-collections
+
 ## API
 
 

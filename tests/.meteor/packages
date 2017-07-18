@@ -39,6 +39,8 @@ dburles:mongo-collection-instances
 # -------------------------------------
 practicalmeteor:mocha
 practicalmeteor:chai
+practicalmeteor:sinon
+hwillson:stub-collections
 dispatch:mocha
 jkuester:meteor-mocha-helpers
 

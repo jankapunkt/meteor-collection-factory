@@ -3,10 +3,14 @@ import {MochaHelpers} from 'meteor/jkuester:meteor-mocha-helpers';
 import {chai, assert} from 'meteor/practicalmeteor:chai';
 import {Random} from 'meteor/random';
 import {Mongo} from 'meteor/mongo';
+import StubCollections from 'meteor/hwillson:stub-collections';
+
 
 import SimpleSchema from 'simpl-schema';
 
 describe("(Factory) CollectionFactory - API", function () {
+
+	this.timeout(15000);
 
 	const dropIfHas = function (collectionName) {
 		const hasCollection = CollectionFactory.hasCollection(collectionName);
@@ -30,18 +34,20 @@ describe("(Factory) CollectionFactory - API", function () {
 
 	describe("hasCollection", function () {
 
-		it("returns false if collection does not exist", function () {
+		it("returns false if collection does not exist", function (done) {
 			randomName = Random.id(10);
 			const expectFalse = CollectionFactory.hasCollection(Random.id(17));
 			assert.isFalse(expectFalse);
+			done();
 		});
 
-		it("returns true if collection does exist", function () {
+		it("returns true if collection does exist", function (done) {
 			randomName = Random.id(10);
 			CollectionFactory.createCollection({name: randomName, explicit: true});
 			const expectTrue = CollectionFactory.hasCollection(randomName);
 			assert.isTrue(expectTrue);
 			dropIfHas(randomName)
+			done();
 		});
 	});
 
@@ -49,15 +55,17 @@ describe("(Factory) CollectionFactory - API", function () {
 
 	describe("getCollection", function () {
 
-		it("returns an undefined result, if name is not registered", function () {
+		it("returns an undefined result, if name is not registered", function (done) {
 			const nullCollection = CollectionFactory.getCollection(Random.id(10));
 			MochaHelpers.isNotDefined(nullCollection);
+			done();
 		});
 
-		it("returns a collection instance, if name is registered", function () {
+		it("returns a collection instance, if name is registered", function (done) {
 			randomName = Random.id(10);
 			createCollectionDefault(randomName);
 			dropIfHas(randomName)
+			done();
 		});
 	});
 
@@ -65,7 +73,7 @@ describe("(Factory) CollectionFactory - API", function () {
 
 	describe("dropCollection", function () {
 		if (Meteor.isServer) {
-			it("server - drops a collection, that exists", function () {
+			it("server - drops a collection, that exists", function (done) {
 				randomName = Random.id(10);
 				createCollectionDefault(randomName);
 
@@ -74,15 +82,17 @@ describe("(Factory) CollectionFactory - API", function () {
 
 				const collection = CollectionFactory.getCollection(randomName);
 				MochaHelpers.isNotDefined(collection);
+				done();
 			});
 		}
 
 		if (Meteor.isClient) {
 			// there is currently no real drop on minimongo :-/
-			it("client - creates a warning, that drop attempt at client does not fulfill completelty", function () {
+			it("client - creates a warning, that drop attempt at client does not fulfill completelty", function (done) {
 				randomName = Random.id(10);
 				createCollectionDefault(randomName);
 				assert.isFalse(CollectionFactory.dropCollection(randomName));
+				done();
 			});
 		}
 	});
@@ -93,21 +103,23 @@ describe("(Factory) CollectionFactory - API", function () {
 
 		describe("default", function () {
 
-			it("createCollection - creates a simple collection without any additionals", function () {
+			it("createCollection - creates a simple collection without any additionals", function (done) {
 				randomName = Random.id(10);
 				const collection = CollectionFactory.createCollection({name: randomName, explicit: true});
 				MochaHelpers.isDefined(collection, MochaHelpers.OBJECT);
 				assert.isTrue(collection instanceof Mongo.Collection);
 				assert.equal(collection._name, randomName);
 				dropIfHas(randomName);
+				done();
 			});
 
-			it("createCollection - has created a collection, which is mockable", function () {
+			it("createCollection - has created a collection, which is mockable", function (done) {
 				randomName = Random.id(10);
 				const collection = CollectionFactory.createCollection({name: randomName, explicit: true});
 				MochaHelpers.mockUser();
 				MochaHelpers.mockCollection(collection, randomName, {});
 				dropIfHas(randomName);
+				done();
 			})
 
 		});
@@ -116,7 +128,7 @@ describe("(Factory) CollectionFactory - API", function () {
 
 		describe("hooks", function () {
 
-			it("insert", function () {
+			it("insert", function (done) {
 				randomName = Random.id(10);
 
 				const options = {
@@ -143,6 +155,7 @@ describe("(Factory) CollectionFactory - API", function () {
 				}
 
 				dropIfHas(randomName)
+				done();
 			});
 
 			it("update", function (done) {
@@ -188,7 +201,7 @@ describe("(Factory) CollectionFactory - API", function () {
 				done();
 			});
 
-			it("remove", function () {
+			it("remove", function (done) {
 				randomName = Random.id(10);
 
 				const options = {
@@ -212,6 +225,7 @@ describe("(Factory) CollectionFactory - API", function () {
 
 
 				dropIfHas(randomName)
+				done();
 			});
 		});
 
@@ -267,7 +281,7 @@ describe("(Factory) CollectionFactory - API", function () {
 
 			});
 
-			it("createCollection - schema and publicfields", function () {
+			it("createCollection - schema and publicfields", function (done) {
 				randomName = Random.id(10);
 
 				const options = {
@@ -280,6 +294,7 @@ describe("(Factory) CollectionFactory - API", function () {
 				const collection = CollectionFactory.createCollection(options);
 				const publicFields = collection.publicFields;
 				assert.deepEqual(publicFields, {title:1,});
+				done();
 			});
 
 		});
@@ -288,7 +303,7 @@ describe("(Factory) CollectionFactory - API", function () {
 
 		describe("helpers", function () {
 
-			it("createCollection - helpers", function () {
+			it("createCollection - helpers", function (done) {
 				randomName = Random.id(10);
 
 				const helpers = {
@@ -306,11 +321,44 @@ describe("(Factory) CollectionFactory - API", function () {
 				const doc = collection.findOne(docId);
 				assert.equal(doc.getTitle(), "test");
 				dropIfHas(randomName)
+				done();
 			});
 
 		});
 
 		////////////////////////////////////////////////////////////////////////////////////////////////
 
+
+		describe("stubbing", function () {
+
+
+			it("created collection ca be stubbed", function (done) {
+				randomName = Random.id(10);
+
+				const options = {
+					name: "stubbedCollection",
+					explicit: true,
+				};
+
+				const collection = CollectionFactory.createCollection(options);
+
+				const beforeCount = collection.find().count();
+
+				StubCollections.add([collection]);
+				StubCollections.stub();
+
+				collection.insert({});
+				collection.insert({});
+
+				assert.equal(collection.find().count(), 2);
+				StubCollections.restore();
+
+				assert.equal(collection.find().count(), beforeCount);
+
+				dropIfHas(randomName)
+				done();
+			});
+
+		});
 	});
 })

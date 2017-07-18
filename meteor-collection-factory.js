@@ -12,7 +12,7 @@ const SimpleSchema = require('simpl-schema').default;
 
 class FactoryCollection extends Mongo.Collection {
 
-	constructor(name, options, optionalArgs) {
+	constructor(name, options, optionalArgs={}) {
 		super(name, options);
 		this.insertHook = optionalArgs.insert;
 		this.updateHook = optionalArgs.update;
@@ -119,9 +119,12 @@ export const CollectionFactory = {
 		if (!collection)
 			collection = new FactoryCollection(collectionName, options, hooksObj);
 		if (explicit) {
-			const tempId = collection.insert({test: "test"});
+			const tempId = collection.insert({});
 			collection.remove(tempId);
 		}
+
+		if (!collection._name)
+			collection._name = collectionName;
 
 		// denies all client actions by default, because of security
 		// see: https://guide.meteor.com/security.html#allow-deny
