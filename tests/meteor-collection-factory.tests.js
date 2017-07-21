@@ -78,10 +78,12 @@ describe("(Factory) CollectionFactory - API", function () {
 				createCollectionDefault(randomName);
 
 				assert.isTrue(CollectionFactory.dropCollection(randomName));
-				assert.isFalse(CollectionFactory.hasCollection(randomName));
 
-				const collection = CollectionFactory.getCollection(randomName);
-				MochaHelpers.isNotDefined(collection);
+				if (Mongo.Collection.remove) {
+					assert.isFalse(CollectionFactory.hasCollection(randomName));
+					const collection = CollectionFactory.getCollection(randomName);
+					MochaHelpers.isNotDefined(collection);
+				}
 				done();
 			});
 		}
