@@ -1,9 +1,8 @@
 import {Meteor} from 'meteor/meteor';
 import {Mongo} from 'meteor/mongo';
-import {SimpleSchemaFactory} from 'meteor/jkuester:simpl-schema-factory';
+import { checkNpmVersions } from 'meteor/tmeasday:check-npm-versions';
 
-//checkNpmVersions({ 'simpl-schema': '0.x.x' }, 'jkuester:meteor-collection-factory');
-
+checkNpmVersions({ 'simpl-schema': '0.x.x' }, 'jkuester:meteor-collection-factory');
 const SimpleSchema = require('simpl-schema').default;
 
 
@@ -134,19 +133,15 @@ export const CollectionFactory = {
 			remove() { return true; },
 		});
 
-		if (schema) {
-			if (schema instanceof SimpleSchema){
-				collection.schema = schema;
-				collection.attachSchema(schema);
-			}else{
-				const tmpschema = SimpleSchemaFactory.defaultSchemaWith(schema);
-				collection.schema = tmpschema;
-				collection.attachSchema(tmpschema);
-			}
+		if (schema && schema instanceof SimpleSchema) {
+			collection.schema = schema;
+			collection.attachSchema(schema);
 		}
-		if (publicFields) collection.publicFields = publicFields;
+		if (publicFields)
+			collection.publicFields = publicFields;
 
-		if (helpersObj) collection.helpers(helpersObj)
+		if (helpersObj)
+			collection.helpers(helpersObj)
 
 		return collection;
 	},

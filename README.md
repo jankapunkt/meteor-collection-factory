@@ -3,24 +3,21 @@
 
 # Meteor Collection Factory
 
-Creates Mongo.Collection instances according to given input. 
+Creates Mongo.Collection instances according to given input. It makes use of:
 
-Uses:
-
-aldeed:collection2-core
-
-dburles:mongo-collection-instances
-
-dburles:burles:collection-helpers
-
-jkuester:simpl-schema-factory
-
-simpl-schema (npm package)
+- aldeed:collection2-core + simpl-schema (npm package)
+- dburles:mongo-collection-instances
+- dburles:burles:collection-helpers
 
 
 ## Changelog
 
-0.1.2 - Fixed compatibility issues with hwillson:stub-collections
+0.1.4
+- Removed internal dependency to SimpleSchemaFactory
+- Included tmeasday:check-npm-versions
+
+0.1.2
+- Fixed compatibility issues with hwillson:stub-collections
 
 ## API
 
@@ -44,7 +41,7 @@ const Todos = CollectionFactory.createCollection({
 });
 ```
 
-#####Optional Attributes
+##### Optional Attributes
 
 The following attributes for the parameter are accepted:
 
@@ -58,7 +55,7 @@ The following attributes for the parameter are accepted:
 
 `helpersObj:Object` - To be used to attach helpers. See: 
 
-#####Hooks 
+##### Hooks
 
 There are hooks for insert, update, remove, as well as insertAfter, updateAfter, removeAfter available on server.  
  
@@ -116,21 +113,21 @@ There are hooks for insert, update, remove, as well as insertAfter, updateAfter,
  
  
 
-##hasCollection
+## hasCollection
 
 ```javascript
 CollectionFactory.hasCollection('name')
 ```
 Uses Mongo.Collection instances to check for existence. See https://github.com/dburles/mongo-collection-instances
 
-##getCollection
+## getCollection
 
 ```javascript
 CollectionFactory.getCollection('name')
 ```
 Has the same effect as Mongo.Collection.get('name'). See https://github.com/dburles/mongo-collection-instances
 
-##dropCollection
+## dropCollection
 
 ```javascript
 CollectionFactory.dropCollection('name')

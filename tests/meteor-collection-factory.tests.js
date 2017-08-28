@@ -4,8 +4,6 @@ import {chai, assert} from 'meteor/practicalmeteor:chai';
 import {Random} from 'meteor/random';
 import {Mongo} from 'meteor/mongo';
 import StubCollections from 'meteor/hwillson:stub-collections';
-
-
 import SimpleSchema from 'simpl-schema';
 
 describe("(Factory) CollectionFactory - API", function () {
@@ -122,7 +120,7 @@ describe("(Factory) CollectionFactory - API", function () {
 				MochaHelpers.mockCollection(collection, randomName, {});
 				dropIfHas(randomName);
 				done();
-			})
+			});
 
 		});
 
@@ -245,7 +243,8 @@ describe("(Factory) CollectionFactory - API", function () {
 					schema: new SimpleSchema({
 						title: String,
 					}),
-				}
+				};
+
 				const collection = CollectionFactory.createCollection(options);
 				const docId = collection.insert({title: "test"});
 				const doc = collection.findOne({_id: docId});
@@ -253,6 +252,9 @@ describe("(Factory) CollectionFactory - API", function () {
 				assert.equal(doc._id, docId);
 
 				if (Meteor.isServer) {
+
+					// try invalid-schema documents
+
 					assert.throws(function () {
 						collection.insert({});
 					})
@@ -268,7 +270,16 @@ describe("(Factory) CollectionFactory - API", function () {
 
 					assert.throws(function () {
 						collection.insert({someAttr: "no-no"});
-					})
+					});
+
+					// try schema-valid document
+					const expectValid = collection.insert({title:"foo"});
+					MochaHelpers.isDefined(expectValid, MochaHelpers.STRING);
+					const expectValidDoc = collection.findOne(expectValid);
+					assert.deepEqual(expectValidDoc, {
+						_id: expectValid,
+						title:"foo",
+					});
 
 					done();
 				} else {
