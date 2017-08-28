@@ -16,7 +16,7 @@ Package.onUse(function (api) {
 	api.use('mongo');
 	api.use('dburles:collection-helpers@1.1.0');
 	api.use('aldeed:collection2-core@2.0.1');
-	api.use("tmeasday:check-npm-versions");
+	api.use("tmeasday:check-npm-versions@0.3.1");
 	api.use('dburles:mongo-collection-instances@0.3.5');
 	api.mainModule('meteor-collection-factory.js');
 });
