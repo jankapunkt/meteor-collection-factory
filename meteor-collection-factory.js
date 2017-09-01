@@ -122,8 +122,12 @@ export const CollectionFactory = {
 			collection.remove(tempId);
 		}
 
+		// internal use
 		if (!collection._name)
 			collection._name = collectionName;
+		// public use
+		if (!collection.name)
+			collection.name = collectionName;
 
 		// denies all client actions by default, because of security
 		// see: https://guide.meteor.com/security.html#allow-deny
