@@ -94,7 +94,7 @@ export const TestSuite = {
 					assert.equal(collection.find({}).count(), 3);
 					assert.throws(function () {
 						MochaHelpers.collectPublication(null, publicationName, collectionName, 3);
-					}, Error, CaroContext.errors.PERMISSION_NOT_LOGGED_IN);
+					}, Error, CaroContext.ERRORS.PERMISSION_NOT_LOGGED_IN);
 					done();
 				});
 
@@ -102,7 +102,7 @@ export const TestSuite = {
 					assert.equal(collection.find({}).count(), 3);
 					assert.throws(function () {
 						MochaHelpers.collectPublication(Random.id(17), publicationName, collectionName, 3);
-					}, Error, CaroContext.errors.PERMISSION_NOT_REGISTERED_USER);
+					}, Error, CaroContext.ERRORS.PERMISSION_NOT_REGISTERED_USER);
 					done();
 				});
 
