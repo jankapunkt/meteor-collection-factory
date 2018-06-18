@@ -2,7 +2,7 @@ import {Meteor} from 'meteor/meteor';
 import {Mongo} from 'meteor/mongo';
 import { checkNpmVersions } from 'meteor/tmeasday:check-npm-versions';
 
-checkNpmVersions({ 'simpl-schema': '0.x.x' }, 'jkuester:meteor-collection-factory');
+checkNpmVersions({ 'simpl-schema': '1.x.x' }, 'jkuester:meteor-collection-factory');
 const SimpleSchema = require('simpl-schema').default;
 
 
