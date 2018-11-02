@@ -3,15 +3,16 @@
   "private": true,
   "scripts": {
     "start": "meteor run",
-    "test": "METEOR_PACKAGE_DIRS=../../ meteor test --driver-package practicalmeteor:mocha",
-    "testcli": "METEOR_PACKAGE_DIRS=../../ TEST_BROWSER_DRIVER=phantomjs meteor test --once --driver-package dispatch:mocha"
+    "test": "METEOR_PACKAGE_DIRS=../../ meteor test --driver-package cultofcoders:mocha",
+    "testcli": "METEOR_PACKAGE_DIRS=../../ TEST_BROWSER_DRIVER=phantomjs meteor test --once --driver-package meteortesting:mocha"
   },
   "dependencies": {
+    "@babel/runtime": "^7.1.2",
     "babel-runtime": "^6.20.0",
-    "meteor-node-stubs": "~0.2.4",
-    "simpl-schema": "^0.3.1"
+    "meteor-node-stubs": "^0.4.1",
+    "simpl-schema": "^1.4.3"
   },
   "devDependencies": {
-    "phantomjs-prebuilt": "^2.1.14"
+    "phantomjs-prebuilt": "^2.1.16"
   }
 }
