@@ -42,57 +42,36 @@ class FactoryCollection extends Mongo.Collection {
   }
 
   insert (doc, callback, cb) {
-    try {
-      if (this.hookActive(hooksNames.insert)) {
-        this.hooks.insert.fct(doc, callback, cb)
-      }
-      const insertResult = super.insert(doc, cb || callback)
-      if (this.hookActive(hooksNames.afterInsert)) {
-        this.hooks.afterInsert.fct(doc, callback, cb, insertResult)
-      }
-      return insertResult
-    } catch (e) {
-      if (this.hookActive(hooksNames.afterInsert)) {
-        this.hooks.afterInsert.fct(doc, callback, cb, e)
-      }
-      throw e
+    if (this.hookActive(hooksNames.insert)) {
+      this.hooks.insert.fct(doc, callback, cb)
     }
+    const insertResult = super.insert(doc, cb || callback)
+    if (this.hookActive(hooksNames.afterInsert)) {
+      this.hooks.afterInsert.fct(doc, callback, cb, insertResult)
+    }
+    return insertResult
   }
 
   update (query, modifier, options, callback) {
-    try {
-      if (this.hookActive(hooksNames.update)) {
-        this.hooks.update.fct(query, modifier, options, callback)
-      }
-      const updateResult = super.update(query, modifier, options, callback)
-      if (this.hookActive(hooksNames.afterUpdate)) {
-        this.hooks.afterUpdate.fct(query, modifier, options, callback, updateResult)
-      }
-      return updateResult
-    } catch (e) {
-      if (this.hookActive(hooksNames.afterUpdate)) {
-        this.hooks.afterUpdate.fct(query, modifier, options, callback, e)
-      }
-      throw e
+    if (this.hookActive(hooksNames.update)) {
+      this.hooks.update.fct(query, modifier, options, callback)
     }
+    const updateResult = super.update(query, modifier, options, callback)
+    if (this.hookActive(hooksNames.afterUpdate)) {
+      this.hooks.afterUpdate.fct(query, modifier, options, callback, updateResult)
+    }
+    return updateResult
   }
 
   remove (selector, callback) {
-    try {
-      if (this.hookActive(hooksNames.remove)) {
-        this.hooks.remove.fct(selector, callback)
-      }
-      const removeResult = super.remove(selector, callback)
-      if (this.hookActive(hooksNames.afterRemove)) {
-        this.hooks.afterRemove.fct(selector, callback, removeResult)
-      }
-      return removeResult
-    } catch (e) {
-      if (this.hookActive(hooksNames.afterRemove)) {
-        this.hooks.afterRemove.fct(selector, callback, e)
-      }
-      throw e
+    if (this.hookActive(hooksNames.remove)) {
+      this.hooks.remove.fct(selector, callback)
     }
+    const removeResult = super.remove(selector, callback)
+    if (this.hookActive(hooksNames.afterRemove)) {
+      this.hooks.afterRemove.fct(selector, callback, removeResult)
+    }
+    return removeResult
   }
 }
 
