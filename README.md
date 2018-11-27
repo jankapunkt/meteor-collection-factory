@@ -30,8 +30,7 @@ Create Mongo.Collection instances by using one config. Compatible with (optional
 
 ## API
 
-
-##createCollection
+## createCollection
 
 ```javascript
 CollectionFactory.createCollection(definitionsObject);
