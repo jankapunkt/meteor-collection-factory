@@ -2,7 +2,7 @@
 
 Package.describe({
   name: 'jkuester:meteor-collection-factory',
-  version: '0.1.7',
+  version: '0.1.8',
   // Brief, one-line summary of the package.
   summary: 'Factory for creating Mongo.Collection instances.',
   // URL to the Git repository containing the source code for this package.
