@@ -1,30 +1,59 @@
 import { Meteor } from 'meteor/meteor'
 import { Mongo } from 'meteor/mongo'
+import { check, Match } from 'meteor/check'
+
+const hooksNames = {
+  insert: 'insert',
+  update: 'update',
+  remove: 'remove',
+  afterInsert: 'afterInsert',
+  afterUpdate: 'afterUpdate',
+  afterRemove: 'afterRemove'
+}
+const oneOfHookNames = name => !!hooksNames[ name ]
 
 class FactoryCollection extends Mongo.Collection {
   constructor (name, options, optionalArgs = {}) {
     super(name, options)
-    this.insertHook = optionalArgs.insert
-    this.updateHook = optionalArgs.update
-    this.removeHook = optionalArgs.remove
-    this.insertAfterHook = optionalArgs.insertAfter
-    this.updateAfterHook = optionalArgs.updateAfter
-    this.removeAfterHook = optionalArgs.removeAfter
+    this.hooks = {}
+    this.hookNames = hooksNames
+
+    this.hooks.insert = { on: !!optionalArgs.insert, fct: optionalArgs.insert }
+    this.hooks.update = { on: !!optionalArgs.update, fct: optionalArgs.update }
+    this.hooks.remove = { on: !!optionalArgs.remove, fct: optionalArgs.remove }
+
+    this.hooks.afterInsert = { on: !!optionalArgs.insertAfter, fct: optionalArgs.insertAfter }
+    this.hooks.afterUpdate = { on: !!optionalArgs.updateAfter, fct: optionalArgs.updateAfter }
+    this.hooks.afterRemove = { on: !!optionalArgs.removeAfter, fct: optionalArgs.removeAfter }
+  }
+
+  hook (name, value) {
+    check(name, Match.Where(oneOfHookNames))
+    check(value, Boolean)
+    if (this.hooks[ name ]) {
+      this.hooks[ name ].on = value
+    }
+  }
+
+  hookActive (name) {
+    check(name, Match.Where(oneOfHookNames))
+    const ref = this.hooks[ name ]
+    return Meteor.isServer && ref && ref.on && ref.fct
   }
 
   insert (doc, callback, cb) {
     try {
-      if (this.insertHook && Meteor.isServer) {
-        this.insertHook(doc, callback, cb)
+      if (this.hookActive(hooksNames.insert)) {
+        this.hooks.insert.fct(doc, callback, cb)
       }
       const insertResult = super.insert(doc, cb || callback)
-      if (this.insertAfterHook && Meteor.isServer) {
-        this.insertAfterHook(doc, callback, cb, insertResult)
+      if (this.hookActive(hooksNames.afterInsert)) {
+        this.hooks.afterInsert.fct(doc, callback, cb, insertResult)
       }
       return insertResult
     } catch (e) {
-      if (this.insertAfterHook && Meteor.isServer) {
-        this.insertAfterHook(doc, callback, cb, e)
+      if (this.hookActive(hooksNames.afterInsert)) {
+        this.hooks.afterInsert.fct(doc, callback, cb, e)
       }
       throw e
     }
@@ -32,17 +61,17 @@ class FactoryCollection extends Mongo.Collection {
 
   update (query, modifier, options, callback) {
     try {
-      if (this.updateHook && Meteor.isServer) {
-        this.updateHook(query, modifier, options, callback)
+      if (this.hookActive(hooksNames.update)) {
+        this.hooks.update.fct(query, modifier, options, callback)
       }
       const updateResult = super.update(query, modifier, options, callback)
-      if (this.updateAfterHook && Meteor.isServer) {
-        this.updateAfterHook(query, modifier, options, callback, updateResult)
+      if (this.hookActive(hooksNames.afterUpdate)) {
+        this.hooks.afterUpdate.fct(query, modifier, options, callback, updateResult)
       }
       return updateResult
     } catch (e) {
-      if (this.updateAfterHook && Meteor.isServer) {
-        this.updateAfterHook(query, modifier, options, callback, e)
+      if (this.hookActive(hooksNames.afterUpdate)) {
+        this.hooks.afterUpdate.fct(query, modifier, options, callback, e)
       }
       throw e
     }
@@ -50,17 +79,17 @@ class FactoryCollection extends Mongo.Collection {
 
   remove (selector, callback) {
     try {
-      if (this.removeHook && Meteor.isServer) {
-        this.removeHook(selector, callback)
+      if (this.hookActive(hooksNames.remove)) {
+        this.hooks.remove.fct(selector, callback)
       }
       const removeResult = super.remove(selector, callback)
-      if (this.removeAfterHook && Meteor.isServer) {
-        this.removeAfterHook(selector, callback, removeResult)
+      if (this.hookActive(hooksNames.afterRemove)) {
+        this.hooks.afterRemove.fct(selector, callback, removeResult)
       }
       return removeResult
     } catch (e) {
-      if (this.removeAfterHook && Meteor.isServer) {
-        this.removeAfterHook(selector, callback, e)
+      if (this.hookActive(hooksNames.afterRemove)) {
+        this.hooks.afterRemove.fct(selector, callback, e)
       }
       throw e
     }
@@ -118,9 +147,22 @@ export const CollectionFactory = {
       collection = new FactoryCollection(collectionName, options, hooksObj)
     }
 
+    // in order to force creation of a collection
+    // we insert a new document and instantly remove it.
+    // We therefore switch hooks to off in order
+    // to prevent any hook related errors here.
     if (explicit) {
+      // switch hooks related to insert and remove to off
+      collection.hook(hooksNames.insert, false)
+      collection.hook(hooksNames.remove, false)
+
+      // insert and remove empty doc
       const tempId = collection.insert({})
       collection.remove(tempId)
+
+      // switch hooks related to insert and remove to off
+      collection.hook(hooksNames.insert, true)
+      collection.hook(hooksNames.remove, true)
     }
 
     // internal use
