@@ -3,28 +3,41 @@
 
 # Meteor Collection Factory
 
-Creates Mongo.Collection instances according to given input. It makes use of:
+Create Mongo.Collection instances by using one config. Compatible with (optional):
 
+<<<<<<< HEAD
 - aldeed:collection2-core + simpl-schema (npm package, you need to manually install this package)
+=======
+- aldeed:collection2
+- simpl-schema (npm package)
+>>>>>>> 799e431cd3ae42b45fc7d156a3bdf58cafb56c10
 - dburles:mongo-collection-instances
 - dburles:burles:collection-helpers (optional, you need to manually install this package)
 
 
 ## Changelog
 
+<<<<<<< HEAD
 0.1.8
 - toggle hooks (on/off)
 - removed try/catch from insert/update/remove as this should be responsibility of the surrounding execution context
 
 0.1.7
 - lint fix to standard js
+=======
+0.1.7
+* Remove dependencies to check npm versions
+* Remove SimpleSchema indirect dependency (it is totally optional now)
+* Remove hard dep to dburles:burles:collection-helpers (still working optional)
+* Update test code and test project to Meteor 1.8
+>>>>>>> 799e431cd3ae42b45fc7d156a3bdf58cafb56c10
 
 0.1.4
-- Removed internal dependency to SimpleSchemaFactory
-- Included tmeasday:check-npm-versions
+* Removed internal dependency to SimpleSchemaFactory
+* Included tmeasday:check-npm-versions
 
 0.1.2
-- Fixed compatibility issues with hwillson:stub-collections
+* Fixed compatibility issues with hwillson:stub-collections
 
 ## API
 
@@ -44,7 +57,7 @@ Minimum required attribute is name.
 
 ```javascript
 const Todos = CollectionFactory.createCollection({
-	name : "MY_COLLECTION_NAME",
+  name : "MY_COLLECTION_NAME",
 });
 ```
 
