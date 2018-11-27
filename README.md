@@ -5,12 +5,19 @@
 
 Creates Mongo.Collection instances according to given input. It makes use of:
 
-- aldeed:collection2-core + simpl-schema (npm package)
+- aldeed:collection2-core + simpl-schema (npm package, you need to manually install this package)
 - dburles:mongo-collection-instances
-- dburles:burles:collection-helpers
+- dburles:burles:collection-helpers (optional, you need to manually install this package)
 
 
 ## Changelog
+
+0.1.8
+- toggle hooks (on/off)
+- removed try/catch from insert/update/remove as this should be responsibility of the surrounding execution context
+
+0.1.7
+- lint fix to standard js
 
 0.1.4
 - Removed internal dependency to SimpleSchemaFactory
