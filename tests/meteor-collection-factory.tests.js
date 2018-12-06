@@ -1,6 +1,6 @@
 /* eslint-env mocha */
 import { Meteor } from 'meteor/meteor'
-import { CollectionFactory } from 'meteor/jkuester:meteor-collection-factory'
+import { CollectionFactory, HookNames } from 'meteor/jkuester:meteor-collection-factory'
 import { MochaHelpers } from 'meteor/jkuester:meteor-mocha-helpers'
 import { assert } from 'meteor/practicalmeteor:chai'
 import { Random } from 'meteor/random'
@@ -19,7 +19,7 @@ describe('(Factory) CollectionFactory - API', function () {
   }
 
   const createCollectionDefault = function (randomName) {
-    CollectionFactory.createCollection({ name: randomName, explicit: true })
+    CollectionFactory.createCollection({name: randomName, explicit: true})
     const collection = CollectionFactory.getCollection(randomName)
     MochaHelpers.isDefined(collection)
     assert.instanceOf(collection, Mongo.Collection)
@@ -39,7 +39,7 @@ describe('(Factory) CollectionFactory - API', function () {
 
     it('returns true if collection does exist', function (done) {
       randomName = Random.id(10)
-      CollectionFactory.createCollection({ name: randomName, explicit: true })
+      CollectionFactory.createCollection({name: randomName, explicit: true})
       const expectTrue = CollectionFactory.hasCollection(randomName)
       assert.isTrue(expectTrue)
       dropIfHas(randomName)
@@ -97,7 +97,7 @@ describe('(Factory) CollectionFactory - API', function () {
 
       it('createCollection - creates a simple collection without any additionals', function (done) {
         randomName = Random.id(10)
-        const collection = CollectionFactory.createCollection({ name: randomName, explicit: true })
+        const collection = CollectionFactory.createCollection({name: randomName, explicit: true})
         MochaHelpers.isDefined(collection, MochaHelpers.OBJECT)
         assert.isTrue(collection instanceof Mongo.Collection)
         assert.equal(collection._name, randomName)
@@ -107,7 +107,7 @@ describe('(Factory) CollectionFactory - API', function () {
 
       it('createCollection - has created a collection, which is mockable', function (done) {
         randomName = Random.id(10)
-        const collection = CollectionFactory.createCollection({ name: randomName, explicit: true })
+        const collection = CollectionFactory.createCollection({name: randomName, explicit: true})
         MochaHelpers.mockUser()
         MochaHelpers.mockCollection(collection, randomName, {})
         dropIfHas(randomName)
@@ -131,19 +131,13 @@ describe('(Factory) CollectionFactory - API', function () {
         }
         const collection = CollectionFactory.createCollection(options)
 
-        const id = collection.insert({ title: 'test' })
-        const doc = collection.findOne({ _id: id })
+        const id = collection.insert({title: 'test'})
+        const doc = collection.findOne({_id: id})
         MochaHelpers.isDefined(doc)
         assert.equal(doc._id, id)
 
-        if (Meteor.isServer) {
-          MochaHelpers.isDefined(doc.createdBy, MochaHelpers.STRING)
-          MochaHelpers.isDefined(doc.createdAt, MochaHelpers.NUMBER)
-        } else {
-          MochaHelpers.isNotDefined(doc.createdBy, MochaHelpers.STRING)
-          MochaHelpers.isNotDefined(doc.createdAt, MochaHelpers.NUMBER)
-        }
-
+        MochaHelpers.isDefined(doc.createdBy, MochaHelpers.STRING)
+        MochaHelpers.isDefined(doc.createdAt, MochaHelpers.NUMBER)
         dropIfHas(randomName)
         done()
       })
@@ -164,28 +158,21 @@ describe('(Factory) CollectionFactory - API', function () {
         }
         const collection = CollectionFactory.createCollection(options)
 
-        const id = collection.insert({ title: 'test', updatedAt: null, updatedBy: null })
-        const doc = collection.findOne({ _id: id })
+        const id = collection.insert({title: 'test', updatedAt: null, updatedBy: null})
+        const doc = collection.findOne({_id: id})
         MochaHelpers.isDefined(doc)
         assert.equal(doc._id, id)
         MochaHelpers.isNotDefined(doc.updatedAt)
         MochaHelpers.isNotDefined(doc.updatedBy)
 
-        collection.update({ _id: id }, { $set: { title: 'updated' } })
-        const updatedDoc = collection.findOne({ _id: id })
+        collection.update({_id: id}, {$set: {title: 'updated'}})
+        const updatedDoc = collection.findOne({_id: id})
         assert.notEqual(updatedDoc.title, doc.title)
 
-        if (Meteor.isServer) {
-          MochaHelpers.isDefined(updatedDoc.updatedBy, MochaHelpers.STRING)
-          MochaHelpers.isDefined(updatedDoc.updatedAt, MochaHelpers.NUMBER)
-          assert.notEqual(updatedDoc.updatedBy, doc.updatedBy)
-          assert.notEqual(updatedDoc.updatedAt, doc.updatedAt)
-        } else {
-          MochaHelpers.isNotDefined(updatedDoc.updatedBy, MochaHelpers.STRING)
-          MochaHelpers.isNotDefined(updatedDoc.updatedAt, MochaHelpers.NUMBER)
-          assert.equal(updatedDoc.updatedBy, doc.updatedBy)
-          assert.equal(updatedDoc.updatedAt, doc.updatedAt)
-        }
+        MochaHelpers.isDefined(updatedDoc.updatedBy, MochaHelpers.STRING)
+        MochaHelpers.isDefined(updatedDoc.updatedAt, MochaHelpers.NUMBER)
+        assert.notEqual(updatedDoc.updatedBy, doc.updatedBy)
+        assert.notEqual(updatedDoc.updatedAt, doc.updatedAt)
 
         dropIfHas(randomName)
         done()
@@ -202,19 +189,76 @@ describe('(Factory) CollectionFactory - API', function () {
           },
         }
         const collection = CollectionFactory.createCollection(options)
-        const docId = collection.insert({ title: 'test' })
-        const expectFalse = !!(collection.remove({ _id: docId }))
+        const docId = collection.insert({title: 'test'})
+        const expectFalse = !!(collection.remove({_id: docId}))
 
-        if (Meteor.isServer) {
-          assert.equal(expectFalse, false)
-          MochaHelpers.isDefined(collection.findOne(docId), MochaHelpers.OBJECT)
-        } else {
-          assert.equal(expectFalse, true)
-          MochaHelpers.isNotDefined(collection.findOne(docId), MochaHelpers.OBJECT)
-        }
+        assert.equal(expectFalse, false)
+        MochaHelpers.isDefined(collection.findOne(docId), MochaHelpers.OBJECT)
 
         dropIfHas(randomName)
         done()
+      })
+
+      it('has bound the hooks to the collection', function (done) {
+        randomName = Random.id(10)
+
+        const hooks = {}
+        let doneCalled = false
+
+        function checkHooks () {
+          const values = Object.values(hooks)
+          if (doneCalled || values.length < Object.keys(HookNames).length) {
+            return
+          }
+
+          const valid = values.every(key => key === true)
+          if (!valid) {
+            doneCalled = true
+            return done(new Error(`expected hooks to be bound to the collection`))
+          } else {
+            doneCalled = true
+            return done()
+          }
+        }
+
+        const options = {
+          name: randomName,
+          explicit: true,
+          [HookNames.insert] () {
+            const self = this
+            hooks[HookNames.insert] = self._name === randomName
+            checkHooks()
+          },
+          [HookNames.update] () {
+            const self = this
+            hooks[HookNames.update] = self._name === randomName
+            checkHooks()
+          },
+          [HookNames.remove] () {
+            const self = this
+            hooks[HookNames.remove] = self._name === randomName
+            checkHooks()
+          },
+          [HookNames.afterInsert] () {
+            const self = this
+            hooks[HookNames.afterInsert] = self._name === randomName
+            checkHooks()
+          },
+          [HookNames.afterUpdate] () {
+            const self = this
+            hooks[HookNames.afterUpdate] = self._name === randomName
+            checkHooks()
+          },
+          [HookNames.afterRemove] () {
+            const self = this
+            hooks[HookNames.afterRemove] = self._name === randomName
+            checkHooks()
+          }
+        }
+        const collection = CollectionFactory.createCollection(options)
+        const docId = collection.insert({title: 'test'})
+        collection.update(docId, {$set: {title: 'other test'}})
+        collection.remove({_id: docId})
       })
     })
 
@@ -232,8 +276,8 @@ describe('(Factory) CollectionFactory - API', function () {
         }
 
         const collection = CollectionFactory.createCollection(options)
-        const docId = collection.insert({ title: 'test' })
-        const doc = collection.findOne({ _id: docId })
+        const docId = collection.insert({title: 'test'})
+        const doc = collection.findOne({_id: docId})
         MochaHelpers.isDefined(doc)
         assert.equal(doc._id, docId)
 
@@ -246,19 +290,19 @@ describe('(Factory) CollectionFactory - API', function () {
           })
 
           assert.throws(function () {
-            collection.update(docId, { $set: { title: null } })
+            collection.update(docId, {$set: {title: null}})
           })
 
           assert.throws(function () {
-            collection.insert({ bla: 10.123 })
+            collection.insert({bla: 10.123})
           })
 
           assert.throws(function () {
-            collection.insert({ someAttr: 'no-no' })
+            collection.insert({someAttr: 'no-no'})
           })
 
           // try schema-valid document
-          const expectValid = collection.insert({ title: 'foo' })
+          const expectValid = collection.insert({title: 'foo'})
           MochaHelpers.isDefined(expectValid, MochaHelpers.STRING)
           const expectValidDoc = collection.findOne(expectValid)
           assert.deepEqual(expectValidDoc, {
@@ -291,7 +335,7 @@ describe('(Factory) CollectionFactory - API', function () {
         }
         const collection = CollectionFactory.createCollection(options)
         const publicFields = collection.publicFields
-        assert.deepEqual(publicFields, { title: 1, })
+        assert.deepEqual(publicFields, {title: 1,})
         done()
       })
 
@@ -313,7 +357,7 @@ describe('(Factory) CollectionFactory - API', function () {
           helpers: helpers,
         }
         const collection = CollectionFactory.createCollection(options)
-        const docId = collection.insert({ title: 'test' })
+        const docId = collection.insert({title: 'test'})
         const doc = collection.findOne(docId)
         assert.equal(doc.getTitle(), 'test')
         dropIfHas(randomName)
