@@ -2,7 +2,7 @@ import { Meteor } from 'meteor/meteor'
 import { Mongo } from 'meteor/mongo'
 import { check, Match } from 'meteor/check'
 
-const hooksNames = {
+export const HookNames = {
   insert: 'insert',
   update: 'update',
   remove: 'remove',
@@ -10,67 +10,61 @@ const hooksNames = {
   afterUpdate: 'afterUpdate',
   afterRemove: 'afterRemove'
 }
-const oneOfHookNames = name => !!hooksNames[ name ]
+const oneOfHookNames = name => !!HookNames[name]
+
+const execHook = (collection, name) => {
+  check(name, Match.Where(oneOfHookNames))
+  const ref = collection.hooks[name]
+  return (ref && ref.on && ref.fct) || (() => {})
+}
 
 class FactoryCollection extends Mongo.Collection {
-  constructor (name, options, optionalArgs = {}) {
+  constructor (name, options, hooks = {}) {
     super(name, options)
-    this.hooks = {}
-    this.hookNames = hooksNames
+    const self = this
+    self.hooks = {}
+    self.hookNames = HookNames
 
-    this.hooks.insert = { on: !!optionalArgs.insert, fct: optionalArgs.insert }
-    this.hooks.update = { on: !!optionalArgs.update, fct: optionalArgs.update }
-    this.hooks.remove = { on: !!optionalArgs.remove, fct: optionalArgs.remove }
+    Object.keys(hooks).forEach(name => check(name, Match.Where(oneOfHookNames)))
 
-    this.hooks.afterInsert = { on: !!optionalArgs.insertAfter, fct: optionalArgs.insertAfter }
-    this.hooks.afterUpdate = { on: !!optionalArgs.updateAfter, fct: optionalArgs.updateAfter }
-    this.hooks.afterRemove = { on: !!optionalArgs.removeAfter, fct: optionalArgs.removeAfter }
+    function addHook (name) {
+      check(name, Match.Where(oneOfHookNames))
+      const fct = hooks[name]
+      self.hooks[name] = {
+        on: !!fct,
+        fct: fct && fct.bind(self)
+      }
+    }
+
+    Object.values(HookNames).forEach(addHook)
   }
 
   hook (name, value) {
     check(name, Match.Where(oneOfHookNames))
     check(value, Boolean)
-    if (this.hooks[ name ]) {
-      this.hooks[ name ].on = value
+    if (this.hooks[name]) {
+      this.hooks[name].on = value
     }
-  }
-
-  hookActive (name) {
-    check(name, Match.Where(oneOfHookNames))
-    const ref = this.hooks[ name ]
-    return Meteor.isServer && ref && ref.on && ref.fct
   }
 
   insert (doc, callback, cb) {
-    if (this.hookActive(hooksNames.insert)) {
-      this.hooks.insert.fct(doc, callback, cb)
-    }
+    execHook(this, HookNames.insert)(doc, callback, cb)
     const insertResult = super.insert(doc, cb || callback)
-    if (this.hookActive(hooksNames.afterInsert)) {
-      this.hooks.afterInsert.fct(doc, callback, cb, insertResult)
-    }
+    execHook(this, HookNames.afterInsert)(doc, callback, cb, insertResult)
     return insertResult
   }
 
   update (query, modifier, options, callback) {
-    if (this.hookActive(hooksNames.update)) {
-      this.hooks.update.fct(query, modifier, options, callback)
-    }
+    execHook(this, HookNames.update)(query, modifier, options, callback)
     const updateResult = super.update(query, modifier, options, callback)
-    if (this.hookActive(hooksNames.afterUpdate)) {
-      this.hooks.afterUpdate.fct(query, modifier, options, callback, updateResult)
-    }
+    execHook(this, HookNames.afterUpdate)(query, modifier, options, callback, updateResult)
     return updateResult
   }
 
   remove (selector, callback) {
-    if (this.hookActive(hooksNames.remove)) {
-      this.hooks.remove.fct(selector, callback)
-    }
+    execHook(this, HookNames.remove)(selector, callback)
     const removeResult = super.remove(selector, callback)
-    if (this.hookActive(hooksNames.afterRemove)) {
-      this.hooks.afterRemove.fct(selector, callback, removeResult)
-    }
+    execHook(this, HookNames.afterRemove)(selector, callback, removeResult)
     return removeResult
   }
 }
@@ -111,14 +105,11 @@ export const CollectionFactory = {
 
     // HOOKS
     const hooksObj = {}
-    if (params.insert) hooksObj.insert = params.insert
-    if (params.update) hooksObj.update = params.update
-    if (params.remove) hooksObj.remove = params.remove
-
-    // AFTER HOOKS
-    if (params.insertAfter) hooksObj.insertAfter = params.insertAfter
-    if (params.updateAfter) hooksObj.updateAfter = params.updateAfter
-    if (params.removeAfter) hooksObj.removeAfter = params.removeAfter
+    Object.keys(HookNames).forEach(hookName => {
+      if (params[hookName]) {
+        hooksObj[hookName] = params[hookName]
+      }
+    })
 
     let collection = this.getCollection()
 
@@ -132,16 +123,16 @@ export const CollectionFactory = {
     // to prevent any hook related errors here.
     if (explicit) {
       // switch hooks related to insert and remove to off
-      collection.hook(hooksNames.insert, false)
-      collection.hook(hooksNames.remove, false)
+      collection.hook(HookNames.insert, false)
+      collection.hook(HookNames.remove, false)
 
       // insert and remove empty doc
       const tempId = collection.insert({})
       collection.remove(tempId)
 
       // switch hooks related to insert and remove to off
-      collection.hook(hooksNames.insert, true)
-      collection.hook(hooksNames.remove, true)
+      collection.hook(HookNames.insert, true)
+      collection.hook(HookNames.remove, true)
     }
 
     // internal use
