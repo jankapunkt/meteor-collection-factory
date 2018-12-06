@@ -1,15 +1,30 @@
-[![Build Status](https://travis-ci.org/jankapunkt/meteor-collection-factory.svg?branch=master)](https://travis-ci.org/jankapunkt/meteor-collection-factory)
+<p align="center">
+  <h1>Meteor Collection Factory</h1>
+  <span>Create Mongo.Collection instances by using a single configuration object.</span> 
+  </a href="https://travis-ci.org/jankapunkt/meteor-collection-factory">
+    <img src="https://travis-ci.org/jankapunkt/meteor-collection-factory.svg?branch=master" alt="Build Status"/>
+  </a>
+  <img src="https://img.shields.io/badge/size-tiny-blue.svg" alt="Size: Tiny"/>  
+</p>
 
-# Meteor Collection Factory
+Compatible with (optional):
 
-Create Mongo.Collection instances by using one config. Compatible with (optional):
-
-- aldeed:collection2-core + simpl-schema (npm package, you need to manually install this package)
+- aldeed:collection2-core + simpl-schema
 - dburles:mongo-collection-instances
-- dburles:burles:collection-helpers (optional, you need to manually install this package)
+- dburles:burles:collection-helpers
 
 
 ## Changelog
+
+0.1.9
+- dropped dependency to `dburles:mongo-collection-instances`, only deps left are `ecmascript` and `mongo`
+- isomorphic codebase (no server/client related execution branching)
+- hooks are thus not restricted to server environment anymore
+- HookNames are exported
+- Renamed hooks (**may cause breaks with previous config, please refactor**)
+  * insertAfter ==> afterInsert
+  * updateAfter ==> afterUpdate
+  * removeAfter ==> afterRemove
 
 0.1.8
 - toggle hooks (on/off)
@@ -65,7 +80,7 @@ The following attributes for the parameter are accepted:
 
 ##### Hooks
 
-There are hooks for insert, update, remove, as well as insertAfter, updateAfter, removeAfter available on server.  
+There are hooks for insert, update, remove, as well as afterInsert, afterUpdate, afterRemove available on server.  
  
  `insert: function(doc, callback, cb) {}`
  
@@ -73,11 +88,11 @@ There are hooks for insert, update, remove, as well as insertAfter, updateAfter,
  
  `remove: function(selector, callback) {}`
  
- `insertAfter: function(doc, callback, cb, insertResult) {}`
+ `afterInsert: function(doc, callback, cb, insertResult) {}`
   
- `updateAfter: function(query, modifier, options, callback, updateResult) {}`
+ `afterUpdate: function(query, modifier, options, callback, updateResult) {}`
     
- `removeAfter: function(selector, callback, removeResult) {}`
+ `afterRemove: function(selector, callback, removeResult) {}`
  
  The after hooks are also called, if an error has occured. In this case the result parameter will be the error.
  Note, that the `this` context is bound to the collection itself, so use this to make use of the collection.
@@ -104,7 +119,7 @@ There are hooks for insert, update, remove, as well as insertAfter, updateAfter,
  		doc.createdAt = new Date().getTime();
  		doc.createdBy = Meteor.userId();
  	},
- 	updateAfter: function(query, modifier, options, callback, updateResult){
+ 	afterUpdate: function(query, modifier, options, callback, updateResult){
  		if (updateResult) {
  			// you may log collection updates
  			Logger.log("info", "doc updated", Meteor.userId())
