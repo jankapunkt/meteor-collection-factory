@@ -1,11 +1,11 @@
-<p align="center">
-  <h1>Meteor Collection Factory</h1>
-  <span>Create Mongo.Collection instances by using a single configuration object.</span> 
-  </a href="https://travis-ci.org/jankapunkt/meteor-collection-factory">
-    <img src="https://travis-ci.org/jankapunkt/meteor-collection-factory.svg?branch=master" alt="Build Status"/>
-  </a>
-  <img src="https://img.shields.io/badge/size-tiny-blue.svg" alt="Size: Tiny"/>  
-</p>
+
+# Meteor Collection Factory
+Create `Mongo.Collection` instances by using a single configuration object.
+
+[![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
+[![Build Status](https://travis-ci.org/jankapunkt/meteor-collection-factory.svg?branch=master)](https://travis-ci.org/jankapunkt/meteor-collection-factory)
+![Size: Tiny](https://img.shields.io/badge/size-tiny-blue.svg)
+![License - MIT](https://img.shields.io/github/license/jankapunkt/meteor-collection-factory.svg)
 
 Compatible with (optional):
 
