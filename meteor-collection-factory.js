@@ -10,11 +10,11 @@ export const HookNames = {
   afterUpdate: 'afterUpdate',
   afterRemove: 'afterRemove'
 }
-const oneOfHookNames = name => !!HookNames[name]
+const oneOfHookNames = name => !!HookNames[ name ]
 
 const execHook = (collection, name) => {
   check(name, Match.Where(oneOfHookNames))
-  const ref = collection.hooks[name]
+  const ref = collection.hooks[ name ]
   return (ref && ref.on && ref.fct) || (() => {})
 }
 
@@ -29,8 +29,8 @@ class FactoryCollection extends Mongo.Collection {
 
     function addHook (name) {
       check(name, Match.Where(oneOfHookNames))
-      const fct = hooks[name]
-      self.hooks[name] = {
+      const fct = hooks[ name ]
+      self.hooks[ name ] = {
         on: !!fct,
         fct: fct && fct.bind(self)
       }
@@ -42,8 +42,8 @@ class FactoryCollection extends Mongo.Collection {
   hook (name, value) {
     check(name, Match.Where(oneOfHookNames))
     check(value, Boolean)
-    if (this.hooks[name]) {
-      this.hooks[name].on = value
+    if (this.hooks[ name ]) {
+      this.hooks[ name ].on = value
     }
   }
 
@@ -106,8 +106,8 @@ export const CollectionFactory = {
     // HOOKS
     const hooksObj = {}
     Object.keys(HookNames).forEach(hookName => {
-      if (params[hookName]) {
-        hooksObj[hookName] = params[hookName]
+      if (params[ hookName ]) {
+        hooksObj[ hookName ] = params[ hookName ]
       }
     })
 
@@ -163,7 +163,7 @@ export const CollectionFactory = {
       collection.publicFields = publicFields
     }
 
-    if (helpersObj) {
+    if (helpersObj && typeof collection.helpers === 'function') {
       collection.helpers(helpersObj)
     }
 
