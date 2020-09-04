@@ -1,5 +1,6 @@
+# Archived, please use [leaonline:collection-factory](https://github.com/leaonline/collection-factory) 
 
-# Meteor Collection Factory
+## Meteor Collection Factory
 Create `Mongo.Collection` instances by using a single configuration object.
 
 [![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
